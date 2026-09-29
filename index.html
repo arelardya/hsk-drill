@@ -250,20 +250,14 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--seal)}
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
-// ---- Shared leaderboard backend (Supabase) ----
-// 1. Create a free project at supabase.com
-// 2. Run the SQL from the README in its SQL editor to create the `scores` table
-// 3. Paste your Project URL and anon public key below (Settings -> API)
-const SUPABASE = {
-  url: 'YOUR_SUPABASE_URL',   // e.g. 'https://abcdefgh.supabase.co'
-  key: 'YOUR_SUPABASE_ANON_KEY',
-};
-const supaConfigured = () => /^https:\/\/[^\s/]+\.[^\s/]+/.test(SUPABASE.url) && !/YOUR_/.test(SUPABASE.url + SUPABASE.key) && SUPABASE.key.length > 20;
-const supaBase = () => SUPABASE.url.replace(/\/+$/, '');
-const supaHeaders = () => ({ 'apikey': SUPABASE.key, 'Authorization': 'Bearer ' + SUPABASE.key });
+// ---- Shared leaderboard backend (Cloudflare Worker, see worker/) ----
+// After `wrangler deploy`, paste the Worker URL below.
+const API = 'https://hsk-drill-api.reban-app.workers.dev';
+const lbConfigured = () => /^https:\/\/[^\s/]+\.[^\s/]+/.test(API) && !/YOUR_/.test(API);
+const apiBase = () => API.replace(/\/+$/, '');
 const NAME_MAX = 24;
 // Trim, drop control/bidi-override characters, collapse whitespace, cap length.
-const cleanName = v => String(v || '').replace(/[\u0000-\u001f\u007f-\u009f‎‏‪-‮⁦-⁩]/g, '').replace(/\s+/g, ' ').trim().slice(0, NAME_MAX);
+const cleanName = v => String(v || '').replace(/[\u0000-\u001f\u007f-\u009f\u200e\u200f\u202a-\u202e\u2066-\u2069]/g, '').replace(/\s+/g, ' ').trim().slice(0, NAME_MAX);
 
 const nameStore = {
   get(){ try { return cleanName(localStorage.getItem('hsk-player-name')); } catch(e){ return ''; } },
@@ -482,7 +476,7 @@ function result(){
     };
     scores.push(entry); scores = scores.slice(-200); store.set('hsk-scores', scores);
   }
-  if (entry && supaConfigured()){
+  if (entry && lbConfigured()){
     const wrap = el('div','namebox');
     const input = document.createElement('input');
     input.placeholder = 'Your name'; input.maxLength = NAME_MAX; input.value = nameStore.get();
@@ -501,7 +495,7 @@ function result(){
       } catch(e){
         submit.textContent = 'Save to global';
         submit.disabled = input.disabled = false;
-        toast('Could not reach the leaderboard — try again');
+        toast(e.message === 'rate limited' ? 'Too many saves — try again in a few minutes' : 'Could not reach the leaderboard — try again');
       }
     };
   }
@@ -523,28 +517,27 @@ const MODE_LABEL = {flash:'Flashcards', write:'Write', quiz:'Quiz'};
 let lbTab = 'global';
 
 // fetch with a timeout so a hung connection surfaces as an error instead of "Loading…" forever
-async function supaFetch(url, opts){
+async function apiFetch(url, opts){
   const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 10000);
   try { return await fetch(url, { ...opts, signal: ctl.signal }); }
   finally { clearTimeout(t); }
 }
 
 async function submitScore(entry){
-  const res = await supaFetch(supaBase() + '/rest/v1/scores', {
+  const res = await apiFetch(apiBase() + '/scores', {
     method: 'POST',
-    headers: { ...supaHeaders(), 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       name: cleanName(entry.name), level: entry.level, mode: entry.mode, lessons: String(entry.lessons),
       total: entry.total, correct: entry.correct, pct: entry.pct
     })
   });
+  if (res.status === 429) throw new Error('rate limited');
   if (!res.ok) throw new Error('submit failed: ' + res.status);
 }
 
 async function fetchGlobal(lvl){
-  const cols = 'name,level,mode,lessons,total,correct,pct,created_at';
-  const q = `${supaBase()}/rest/v1/scores?level=eq.${encodeURIComponent(lvl)}&select=${cols}&order=pct.desc,total.desc,created_at.desc&limit=20`;
-  const res = await supaFetch(q, { headers: supaHeaders() });
+  const res = await apiFetch(`${apiBase()}/scores?level=${encodeURIComponent(lvl)}`);
   if (!res.ok) throw new Error('fetch failed: ' + res.status);
   const rows = await res.json();
   if (!Array.isArray(rows)) throw new Error('unexpected response');
@@ -588,9 +581,9 @@ function renderDeviceBoard(){
 
 async function renderGlobalBoard(){
   const body = $('#lbBody'); body.innerHTML='';
-  if (!supaConfigured()){
+  if (!lbConfigured()){
     body.appendChild(el('p','lb-status err',
-      'Global leaderboard isn\'t set up yet — it needs a free Supabase project. See the README, then paste the URL and key into index.html.'));
+      'Global leaderboard isn\'t set up yet.'));
     return;
   }
   body.appendChild(el('p','lb-status','Loading…'));

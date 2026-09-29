@@ -1,0 +1,11 @@
+name = "hsk-drill-api"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hsk-drill"
+database_id = "fc115bf9-029c-42ca-afac-2c39a80976d2"
+
+[vars]
+ALLOWED_ORIGINS = "https://arelardya.github.io,http://localhost:8765"
