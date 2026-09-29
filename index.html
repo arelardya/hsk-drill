@@ -2,24 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="theme-color" content="#121212">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>HSK 1 Drill</title>
 <style>
 :root{
-  --paper:#f3f4f1; --card:#fbfbf9; --ink:#1c1f24; --muted:#5d646c; --line:#cfd3d6;
-  --seal:#b3261e; --seal-ink:#ffffff; --ok:#2f7d4f; --okbg:#e3f1e8; --badbg:#f8e2df;
+  color-scheme:dark;
+  --paper:#121212; --card:#1b1b1c; --ink:#ececea; --muted:#9a9a97; --line:#333335;
+  --seal:#ff8a2b; --seal-ink:#1a1206; --bad:#ef5b52; --ok:#6cc08a; --okbg:#1f3328; --badbg:#3a2321;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --paper:#15171a; --card:#1d2024; --ink:#e9e7e2; --muted:#9aa1a8; --line:#3a3f45;
-    --seal:#e0584d; --seal-ink:#15171a; --ok:#6cc08a; --okbg:#1f3328; --badbg:#3a2321;
-  }
-}
-:root[data-theme="dark"]{
-  --paper:#15171a; --card:#1d2024; --ink:#e9e7e2; --muted:#9aa1a8; --line:#3a3f45;
-  --seal:#e0584d; --seal-ink:#15171a; --ok:#6cc08a; --okbg:#1f3328; --badbg:#3a2321;
 }
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
@@ -73,7 +65,7 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--seal)}
 .hint{color:var(--muted);text-align:center;font-size:.85rem;margin:12px 0}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
 .actions button{min-height:52px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-weight:600}
-.actions .no{color:var(--seal)} .actions .yes{color:var(--ok)}
+.actions .no{color:var(--bad)} .actions .yes{color:var(--ok)}
 .actions button:disabled{opacity:.35;cursor:not-allowed}
 /* quiz */
 .q{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:24px 16px;text-align:center;margin-bottom:12px;min-height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center}
@@ -82,7 +74,7 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--seal)}
 .ans button{min-height:52px;text-align:left;padding:8px 14px;border:1px solid var(--line);background:var(--card);border-radius:10px;display:flex;gap:12px;align-items:center}
 .ans button .k{color:var(--muted);font-size:.8rem;min-width:1ch}
 .ans button.right{background:var(--okbg);border-color:var(--ok)}
-.ans button.wrong{background:var(--badbg);border-color:var(--seal)}
+.ans button.wrong{background:var(--badbg);border-color:var(--bad)}
 .ans .hz{font-size:1.6rem}
 .fb{min-height:24px;text-align:center;margin:10px 0;font-weight:600}
 /* result */
@@ -117,7 +109,7 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--seal)}
 .lb-tabs button{flex:1;min-height:40px;border:1px solid var(--line);background:var(--card);border-radius:8px;font-weight:600;font-size:.88rem}
 .lb-tabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .lb-status{color:var(--muted);text-align:center;padding:24px 10px;font-size:.9rem}
-.lb-status.err{color:var(--seal)}
+.lb-status.err{color:var(--bad)}
 .namebox{display:flex;gap:8px;margin:12px 0}
 .namebox input{flex:1;min-height:44px;padding:0 12px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;font:inherit}
 .you{border-color:var(--seal)!important;background:var(--okbg)!important}
