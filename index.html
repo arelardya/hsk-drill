@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HSK 1 Drill</title>
+<style>
+:root{
+  --paper:#f3f4f1; --card:#fbfbf9; --ink:#1c1f24; --muted:#5d646c; --line:#cfd3d6;
+  --seal:#b3261e; --seal-ink:#ffffff; --ok:#2f7d4f; --okbg:#e3f1e8; --badbg:#f8e2df;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#15171a; --card:#1d2024; --ink:#e9e7e2; --muted:#9aa1a8; --line:#3a3f45;
+    --seal:#e0584d; --seal-ink:#15171a; --ok:#6cc08a; --okbg:#1f3328; --badbg:#3a2321;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#15171a; --card:#1d2024; --ink:#e9e7e2; --muted:#9aa1a8; --line:#3a3f45;
+  --seal:#e0584d; --seal-ink:#15171a; --ok:#6cc08a; --okbg:#1f3328; --badbg:#3a2321;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font:16px/1.5 system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+.hanzi{font-family:"Songti SC","Noto Serif SC","Source Han Serif SC","STSong","SimSun","Noto Sans CJK SC",serif}
+main{max-width:560px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.25rem;margin:0 0 2px;font-weight:650}
+.sub{color:var(--muted);margin:0 0 20px;font-size:.92rem}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--seal);outline-offset:2px}
+fieldset{border:0;padding:0;margin:0 0 20px}
+legend,.lbl{font-weight:600;font-size:.95rem;margin-bottom:8px;padding:0}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-width:44px;min-height:44px;padding:0 12px;border:1px solid var(--line);background:var(--card);border-radius:8px;font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.quick{color:var(--muted)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card)}
+.seg button{border:0;background:transparent;padding:10px 6px;min-height:52px;text-align:center;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.seg small{display:block;color:inherit;opacity:.7;font-size:.75rem}
+.opts{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+select{font:inherit;padding:8px 10px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;min-height:44px}
+label.chk{display:flex;gap:8px;align-items:center;min-height:44px}
+input[type=checkbox]{width:20px;height:20px;accent-color:var(--seal)}
+.primary{width:100%;min-height:52px;border:0;border-radius:10px;background:var(--seal);color:var(--seal-ink);font-weight:650;font-size:1.05rem}
+.primary:disabled{opacity:.4;cursor:not-allowed}
+.ghost{min-height:44px;padding:0 14px;border:1px solid var(--line);background:var(--card);border-radius:10px}
+.count{color:var(--muted);font-size:.9rem;margin:10px 0 0;text-align:center}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px}
+.bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:16px}
+.bar>i{display:block;height:100%;background:var(--seal);width:0;transition:width .25s}
+/* flashcard */
+.scene{perspective:1200px}
+.card{position:relative;width:100%;aspect-ratio:1/1;max-height:60vh;transform-style:preserve-3d;transition:transform .35s;cursor:pointer;border:0;background:none;padding:0;display:block}
+.card.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--line);background:var(--card);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;overflow:hidden}
+.face.back{transform:rotateY(180deg)}
+.face.grid::before{content:"";position:absolute;inset:14px;border:1px solid var(--line);
+  background:
+   repeating-linear-gradient(to bottom,var(--line) 0 6px,transparent 6px 12px) center/1px 100% no-repeat,
+   repeating-linear-gradient(to right,var(--line) 0 6px,transparent 6px 12px) center/100% 1px no-repeat;
+  opacity:.8}
+.face>*{position:relative}
+.big{font-size:clamp(64px,22vw,120px);line-height:1.1;margin:0}
+.big.long{font-size:clamp(48px,15vw,84px)}
+.py{font-size:clamp(1.6rem,7vw,2.2rem);color:var(--seal);margin:0 0 6px;font-weight:600}
+.mean{font-size:1.15rem;margin:0}
+.tag{position:absolute!important;top:10px;left:14px;font-size:.78rem;color:var(--muted)}
+.hint{color:var(--muted);text-align:center;font-size:.85rem;margin:12px 0}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.actions button{min-height:52px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-weight:600}
+.actions .no{color:var(--seal)} .actions .yes{color:var(--ok)}
+.actions button:disabled{opacity:.35;cursor:not-allowed}
+/* quiz */
+.q{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:24px 16px;text-align:center;margin-bottom:12px;min-height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.q .big{font-size:clamp(56px,18vw,96px)}
+.ans{display:grid;gap:8px}
+.ans button{min-height:52px;text-align:left;padding:8px 14px;border:1px solid var(--line);background:var(--card);border-radius:10px;display:flex;gap:12px;align-items:center}
+.ans button .k{color:var(--muted);font-size:.8rem;min-width:1ch}
+.ans button.right{background:var(--okbg);border-color:var(--ok)}
+.ans button.wrong{background:var(--badbg);border-color:var(--seal)}
+.ans .hz{font-size:1.6rem}
+.fb{min-height:24px;text-align:center;margin:10px 0;font-weight:600}
+/* result */
+.score{font-size:2.6rem;font-weight:700;margin:8px 0}
+.miss{list-style:none;padding:0;margin:16px 0;display:grid;gap:6px}
+.miss li{display:flex;gap:12px;align-items:baseline;padding:10px 12px;border:1px solid var(--line);background:var(--card);border-radius:10px}
+.miss .hanzi{font-size:1.5rem}
+.miss span.m{color:var(--muted);font-size:.9rem}
+.stack{display:grid;gap:10px}
+@media (prefers-reduced-motion:reduce){.card,.bar>i{transition:none}}
+[hidden]{display:none!important}
+/* level selector */
+.levels{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;margin-bottom:18px;-webkit-overflow-scrolling:touch}
+.lvl{flex:0 0 auto;min-height:44px;padding:0 14px;border:1px solid var(--line);background:var(--card);border-radius:20px;font-weight:600;white-space:nowrap}
+.lvl[aria-pressed="true"]{background:var(--seal);color:var(--seal-ink);border-color:var(--seal)}
+.lvl.soon{color:var(--muted);opacity:.6}
+.lvl.soon small{display:block;font-weight:400;font-size:.68rem;margin-top:1px}
+/* footer */
+.credit{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;text-align:center}
+.credit a{color:inherit;font-weight:600}
+/* leaderboard */
+.lbtn{display:flex;gap:6px;align-items:center;justify-content:center;width:100%;min-height:48px;border:1px solid var(--line);background:var(--card);border-radius:10px;margin-top:6px;font-weight:600}
+.lb-list{list-style:none;padding:0;margin:10px 0;display:grid;gap:6px}
+.lb-list li{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);background:var(--card);border-radius:10px}
+.lb-list .rank{width:1.6em;text-align:center;font-weight:700;color:var(--muted)}
+.lb-list li:nth-child(1) .rank{color:var(--seal)}
+.lb-list .meta{flex:1;min-width:0}
+.lb-list .meta b{display:block;font-size:.95rem}
+.lb-list .meta span{color:var(--muted);font-size:.78rem}
+.lb-list .pct{font-weight:700;font-variant-numeric:tabular-nums}
+.lb-tabs{display:flex;gap:6px;margin:14px 0 4px}
+.lb-tabs button{flex:1;min-height:40px;border:1px solid var(--line);background:var(--card);border-radius:8px;font-weight:600;font-size:.88rem}
+.lb-tabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.lb-status{color:var(--muted);text-align:center;padding:24px 10px;font-size:.9rem}
+.lb-status.err{color:var(--seal)}
+.namebox{display:flex;gap:8px;margin:12px 0}
+.namebox input{flex:1;min-height:44px;padding:0 12px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;font:inherit}
+.you{border-color:var(--seal)!important;background:var(--okbg)!important}
+.namehint{color:var(--muted);font-size:.8rem;margin:-6px 0 12px}
+.empty{color:var(--muted);text-align:center;padding:30px 10px}
+/* toast */
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;font-size:.9rem;transition:opacity .25s,transform .25s;z-index:20;max-width:88vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ---------- tablet (>=700px): additive only, mobile layout above is untouched ---------- */
+@media (min-width:700px){
+  main{max-width:880px;padding:32px 32px 64px}
+  h1{font-size:1.6rem}
+  .sub{font-size:1rem;margin-bottom:26px}
+  .levels{overflow-x:visible;flex-wrap:wrap;margin-bottom:26px}
+  /* lesson chips: even grid instead of ragged wrapping */
+  #chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:8px}
+  #chips+.row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+  #chips+.row .chip{width:100%}
+  .seg button{min-height:64px;font-size:1.05rem}
+  .seg small{font-size:.8rem}
+  /* round options side by side, as one bar */
+  .opts{gap:24px;justify-content:space-between;padding:6px 16px;border:1px solid var(--line);background:var(--card);border-radius:10px}
+  .opts label:not(.chk){display:flex;align-items:center;gap:10px}
+  /* session / leaderboard column */
+  #session,#leaderboard{max-width:760px;margin:0 auto}
+  .scene{max-width:720px;margin:0 auto}
+  .card{aspect-ratio:3/2;max-height:56vh}
+  .big{font-size:clamp(96px,14vw,150px)}
+  .big.long{font-size:clamp(72px,10vw,110px)}
+  .py{font-size:clamp(2rem,4.5vw,2.8rem)}
+  .mean{font-size:1.4rem}
+  .tag{font-size:.85rem;top:24px!important;left:28px!important}
+  .hint{font-size:.92rem}
+  .actions{max-width:720px;margin:8px auto 0}
+  .q{min-height:220px}
+  .q .big{font-size:clamp(72px,11vw,120px)}
+  .ans{grid-template-columns:1fr 1fr;gap:10px}
+  .ans button{min-height:64px}
+  .ans .hz{font-size:2rem}
+  .miss{grid-template-columns:1fr 1fr}
+  .stack{grid-template-columns:1fr 1fr}
+  .lb-list li{padding:12px 16px}
+  .credit{margin-top:48px}
+}
+
+/* ---------- desktop (>=1100px) ---------- */
+@media (min-width:1100px){
+  main{max-width:1120px;padding:40px 48px 72px}
+  h1{font-size:1.9rem}
+  /* setup becomes two columns: lessons on the left, mode/round/start on the right */
+  #setup{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);column-gap:56px;align-content:start;align-items:start}
+  #setup>fieldset:first-of-type{grid-column:1;grid-row:1 / span 7}
+  #setup>:not(fieldset:first-of-type){grid-column:2}
+  #chips{grid-template-columns:repeat(auto-fill,minmax(64px,1fr))}
+  .chip{min-height:48px}
+  #session,#leaderboard{max-width:820px}
+  .scene,.actions{max-width:820px}
+  .card{max-height:58vh}
+  .big{font-size:clamp(120px,11vw,180px)}
+  .big.long{font-size:clamp(88px,8vw,132px)}
+  .miss{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>HSK Drill</h1>
+  <p class="sub">New HSK Course · write each hanzi on paper as you go</p>
+
+  <div class="levels" id="levels" role="group" aria-label="HSK level"></div>
+
+  <section id="setup">
+    <fieldset>
+      <legend>Lessons</legend>
+      <div class="row" id="chips" role="group" aria-label="Lessons"></div>
+      <div class="row" style="margin-top:8px">
+        <button class="chip quick" data-q="1-5">1–5</button>
+        <button class="chip quick" data-q="6-10">6–10</button>
+        <button class="chip quick" data-q="11-15">11–15</button>
+        <button class="chip quick" data-q="all">All</button>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Mode</legend>
+      <div class="seg" id="modes">
+        <button data-mode="flash" aria-pressed="true">Flashcards<small>hanzi → answer</small></button>
+        <button data-mode="write" aria-pressed="false">Write<small>meaning → hanzi</small></button>
+        <button data-mode="quiz" aria-pressed="false">Quiz<small>multiple choice</small></button>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Round</legend>
+      <div class="opts">
+        <label>Cards <select id="size"><option>10</option><option selected>20</option><option>50</option><option value="0">All</option></select></label>
+        <label class="chk"><input type="checkbox" id="tonly"> Trouble list only (<span id="tcount">0</span>)</label>
+      </div>
+    </fieldset>
+
+    <button class="primary" id="start">Start</button>
+    <p class="count" id="poolcount"></p>
+    <button class="lbtn" id="showLb">🏆 Leaderboard</button>
+    <p class="count"><button class="ghost" id="clear" hidden>Clear trouble list</button></p>
+  </section>
+
+  <section id="leaderboard" hidden>
+    <div class="top">
+      <button class="ghost" id="lbBack">Back</button>
+      <span class="lbl" style="margin:0">Leaderboard</span>
+    </div>
+    <div class="lb-tabs" id="lbTabs">
+      <button data-tab="global" aria-pressed="true">🌐 Global</button>
+      <button data-tab="device" aria-pressed="false">📱 This device</button>
+    </div>
+    <div id="lbBody"></div>
+  </section>
+
+  <section id="session" hidden>
+    <div class="top">
+      <button class="ghost" id="quit">Quit</button>
+      <span id="prog" aria-live="polite"></span>
+    </div>
+    <div class="bar"><i id="barfill"></i></div>
+    <div id="stage"></div>
+  </section>
+
+  <p class="credit">by me Farrel Ardya · <a href="https://instagram.com/farrelardyaa" target="_blank" rel="noopener">Instagram @farrelardyaa</a></p>
+</main>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+// ---- Shared leaderboard backend (Supabase) ----
+// 1. Create a free project at supabase.com
+// 2. Run the SQL from the README in its SQL editor to create the `scores` table
+// 3. Paste your Project URL and anon public key below (Settings -> API)
+const SUPABASE = {
+  url: 'YOUR_SUPABASE_URL',   // e.g. 'https://abcdefgh.supabase.co'
+  key: 'YOUR_SUPABASE_ANON_KEY',
+};
+const supaConfigured = () => /^https:\/\/[^\s/]+\.[^\s/]+/.test(SUPABASE.url) && !/YOUR_/.test(SUPABASE.url + SUPABASE.key) && SUPABASE.key.length > 20;
+const supaBase = () => SUPABASE.url.replace(/\/+$/, '');
+const supaHeaders = () => ({ 'apikey': SUPABASE.key, 'Authorization': 'Bearer ' + SUPABASE.key });
+const NAME_MAX = 24;
+// Trim, drop control/bidi-override characters, collapse whitespace, cap length.
+const cleanName = v => String(v || '').replace(/[\u0000-\u001f\u007f-\u009f‎‏‪-‮⁦-⁩]/g, '').replace(/\s+/g, ' ').trim().slice(0, NAME_MAX);
+
+const nameStore = {
+  get(){ try { return cleanName(localStorage.getItem('hsk-player-name')); } catch(e){ return ''; } },
+  set(v){ try { localStorage.setItem('hsk-player-name', v); } catch(e){} }
+};
+
+const DATA = {"1": [["你好", "nǐ hǎo", "hello"], ["好", "hǎo", "good"], ["您", "nín", "you (polite)"], ["老师", "lǎoshī", "teacher"], ["谢谢", "xièxie", "thank you"], ["不客气", "bú kèqi", "you're welcome"], ["大家", "dàjiā", "everyone"], ["再见", "zàijiàn", "goodbye"], ["学生", "xuésheng", "student"], ["同学", "tóngxué", "classmate"], ["你们", "nǐmen", "you (plural)"], ["们", "men", "(plural suffix)"]], "2": [["不", "bù", "no, not"], ["高兴", "gāoxìng", "happy, glad"], ["叫", "jiào", "to be called"], ["名字", "míngzi", "name"], ["认识", "rènshi", "to know (a person)"], ["请问", "qǐngwèn", "excuse me, may I ask"], ["什么", "shénme", "what"], ["是", "shì", "to be"], ["我", "wǒ", "I, me"], ["对不起", "duìbuqǐ", "sorry"], ["没关系", "méi guānxi", "it doesn't matter"], ["没事", "méishì", "it's nothing"], ["你", "nǐ", "you"], ["也", "yě", "also"]], "3": [["的", "de", "(possessive particle)"], ["还", "hái", "still, also"], ["国", "guó", "country"], ["姐姐", "jiějie", "older sister"], ["吗", "ma", "(question particle)"], ["哪", "nǎ", "which"], ["女朋友", "nǚpéngyou", "girlfriend"], ["人", "rén", "person"], ["谁", "shéi", "who"], ["她", "tā", "she, her"], ["太", "tài", "too, extremely"], ["喂", "wèi", "hello (on phone)"], ["我们", "wǒmen", "we, us"], ["对", "duì", "correct, right"], ["工作", "gōngzuò", "work, job"], ["想", "xiǎng", "to want, to think"], ["这", "zhè", "this"]], "4": [["八", "bā", "eight"], ["爸爸", "bàba", "father"], ["百", "bǎi", "hundred"], ["大", "dà", "big"], ["儿子", "érzi", "son"], ["多", "duō", "many, much"], ["多少", "duōshao", "how many/much"], ["哥哥", "gēge", "older brother"], ["个", "gè", "(measure word)"], ["孩子", "háizi", "child"], ["和", "hé", "and"], ["几", "jǐ", "how many (small numbers)"], ["今年", "jīnnián", "this year"], ["九", "jiǔ", "nine"], ["口", "kǒu", "mouth; (measure word for family members)"], ["两", "liǎng", "two (of something)"], ["零", "líng", "zero"], ["六", "liù", "six"], ["妈妈", "māma", "mother"], ["没有", "méiyǒu", "don't have; there isn't"], ["妹妹", "mèimei", "younger sister"], ["呢", "ne", "(question particle)"], ["女儿", "nǚ'ér", "daughter"], ["七", "qī", "seven"], ["千", "qiān", "thousand"], ["三", "sān", "three"], ["十", "shí", "ten"], ["四", "sì", "four"], ["岁", "suì", "years old"], ["他", "tā", "he, him"], ["五", "wǔ", "five"], ["一", "yī", "one"], ["有", "yǒu", "to have"], ["家", "jiā", "home, family"]], "5": [["菜", "cài", "dish, vegetable"], ["电脑", "diànnǎo", "computer"], ["好看", "hǎokàn", "good-looking"], ["号", "hào", "number; day of month"], ["会", "huì", "to know how to; will"], ["饺子", "jiǎozi", "dumpling"], ["今天", "jīntiān", "today"], ["面条儿", "miàntiáor", "noodles"], ["日", "rì", "day, sun"], ["喜欢", "xǐhuan", "to like"], ["下班", "xiàbān", "to finish work"], ["新", "xīn", "new"], ["星期", "xīngqī", "week"], ["星期日", "xīngqīrì", "Sunday"], ["星期天", "xīngqītiān", "Sunday"], ["休息", "xiūxi", "to rest"], ["一些", "yìxiē", "some"], ["月", "yuè", "month, moon"], ["真", "zhēn", "really, truly"], ["做", "zuò", "to do, to make"], ["做饭", "zuò fàn", "to cook"]], "6": [["包子", "bāozi", "steamed bun"], ["超市", "chāoshì", "supermarket"], ["吃", "chī", "to eat"], ["出租车", "chūzūchē", "taxi"], ["电话", "diànhuà", "telephone"], ["东西", "dōngxi", "thing"], ["非常", "fēicháng", "very, extremely"], ["好吃", "hǎochī", "tasty"], ["那边", "nàbiān", "over there"], ["哪儿", "nǎr", "where"], ["买", "mǎi", "to buy"], ["米饭", "mǐfàn", "rice"], ["明天", "míngtiān", "tomorrow"], ["牛奶", "niúnǎi", "milk"], ["去", "qù", "to go"], ["手机", "shǒujī", "cell phone"], ["些", "xiē", "some"], ["晚饭", "wǎnfàn", "dinner"], ["怎么", "zěnme", "how, why"], ["坐", "zuò", "to sit; to take (transport)"]], "7": [["吧", "ba", "(suggestion particle)"], ["半", "bàn", "half"], ["点", "diǎn", "o'clock; a bit"], ["电影", "diànyǐng", "movie"], ["电影院", "diànyǐngyuàn", "cinema"], ["店", "diàn", "shop"], ["分", "fēn", "minute"], ["分钟", "fēnzhōng", "minute"], ["见", "jiàn", "to see"], ["看", "kàn", "to look, to watch"], ["课", "kè", "class, lesson"], ["里", "lǐ", "inside"], ["上班", "shàngbān", "to go to work"], ["上课", "shàngkè", "to attend class"], ["上午", "shàngwǔ", "morning"], ["下课", "xiàkè", "class ends"], ["下午", "xiàwǔ", "afternoon"], ["现在", "xiànzài", "now"], ["医院", "yīyuàn", "hospital"], ["在", "zài", "at, in; to be located"], ["早上", "zǎoshang", "morning"], ["事", "shì", "matter, affair"], ["晚上", "wǎnshang", "evening"], ["后", "hòu", "after, behind"]], "8": [["病人", "bìngrén", "patient"], ["到", "dào", "to arrive; to"], ["饭", "fàn", "meal, food"], ["房间", "fángjiān", "room"], ["看见", "kànjiàn", "to see"], ["猫", "māo", "cat"], ["没", "méi", "not (have)"], ["能", "néng", "can, to be able to"], ["漂亮", "piàoliang", "pretty"], ["书店", "shūdiàn", "bookstore"], ["外", "wài", "outside"], ["午饭", "wǔfàn", "lunch"], ["小", "xiǎo", "small"], ["学校", "xuéxiào", "school"], ["医生", "yīshēng", "doctor"], ["只", "zhǐ", "only"], ["桌子", "zhuōzi", "table"], ["下", "xià", "under; next"]], "9": [["白天", "báitiān", "daytime"], ["本", "běn", "(measure word for books)"], ["唱", "chàng", "to sing"], ["第", "dì", "(ordinal prefix)"], ["电视", "diànshì", "television"], ["读书", "dúshū", "to study, to read"], ["歌", "gē", "song"], ["狗", "gǒu", "dog"], ["好听", "hǎotīng", "pleasant to hear"], ["那个", "nàge", "that one"], ["朋友", "péngyou", "friend"], ["前边", "qiánbian", "front, ahead"], ["书", "shū", "book"], ["玩", "wán", "to play"], ["学习", "xuéxí", "to study"], ["椅子", "yǐzi", "chair"], ["那", "nà", "that"], ["边", "biān", "side"]], "10": [["杯子", "bēizi", "cup"], ["穿", "chuān", "to wear"], ["贵", "guì", "expensive"], ["件", "jiàn", "(measure word for clothing/items)"], ["块", "kuài", "(measure word for money, yuan)"], ["斤", "jīn", "catty (500g)"], ["那儿", "nàr", "there"], ["那些", "nàxiē", "those"], ["男", "nán", "male"], ["女", "nǚ", "female"], ["便宜", "piányi", "cheap"], ["苹果", "píngguǒ", "apple"], ["钱", "qián", "money"], ["少", "shǎo", "few, little"], ["售货员", "shòuhuòyuán", "shop assistant"], ["水果", "shuǐguǒ", "fruit"], ["商店", "shāngdiàn", "store, shop"], ["这边", "zhèbiān", "over here"], ["这儿", "zhèr", "here"], ["这些", "zhèxiē", "these"], ["怎么样", "zěnmeyàng", "how about, how is it"], ["衣服", "yīfu", "clothes"], ["元", "yuán", "yuan (currency)"]], "11": [["车", "chē", "car, vehicle"], ["大学", "dàxué", "university"], ["大学生", "dàxuéshēng", "university student"], ["弟弟", "dìdi", "younger brother"], ["读", "dú", "to read"], ["饭店", "fàndiàn", "restaurant, hotel"], ["哪里", "nǎlǐ", "where"], ["那里", "nàlǐ", "there"], ["开车", "kāichē", "to drive"], ["起床", "qǐchuáng", "to get up"], ["时候", "shíhou", "time, moment"], ["睡", "shuì", "to sleep"], ["睡觉", "shuìjiào", "to sleep"], ["说", "shuō", "to speak"], ["问", "wèn", "to ask"], ["学", "xué", "to study, to learn"], ["医", "yī", "medicine, medical"], ["要", "yào", "to want; will"], ["正在", "zhèngzài", "in the process of (doing)"], ["知道", "zhīdào", "to know"], ["找", "zhǎo", "to look for"], ["昨天", "zuótiān", "yesterday"], ["小朋友", "xiǎopéngyou", "child, little friend"]], "12": [["病", "bìng", "illness"], ["喝", "hē", "to drink"], ["回", "huí", "to return"], ["觉得", "juéde", "to feel, to think"], ["看病", "kànbìng", "to see a doctor"], ["来", "lái", "to come"], ["冷", "lěng", "cold"], ["热", "rè", "hot"], ["生病", "shēngbìng", "to fall ill"], ["天", "tiān", "day, sky"], ["天气", "tiānqì", "weather"], ["下雨", "xià yǔ", "to rain"], ["雪", "xuě", "snow"], ["药", "yào", "medicine"], ["一点儿", "yìdiǎnr", "a little bit"], ["有点儿", "yǒudiǎnr", "a bit, somewhat"], ["雨", "yǔ", "rain"], ["再", "zài", "again"], ["这里", "zhèlǐ", "here"], ["公司", "gōngsī", "company"], ["水", "shuǐ", "water"], ["了", "le", "(completed action particle)"]], "13": [["杯", "bēi", "cup, (measure word for drinks)"], ["打电话", "dǎ diànhuà", "to make a phone call"], ["茶", "chá", "tea"], ["服务员", "fúwùyuán", "waiter/waitress"], ["给", "gěi", "to give; for"], ["鸡蛋", "jīdàn", "egg"], ["可以", "kěyǐ", "can, may"], ["卖", "mài", "to sell"], ["面包", "miànbāo", "bread"], ["女士", "nǚshì", "lady, madam"], ["请", "qǐng", "please"], ["问题", "wèntí", "question, problem"], ["先生", "xiānsheng", "mister, sir"], ["一半", "yíbàn", "half"], ["一下", "yíxià", "softens a verb, briefly"], ["早饭", "zǎofàn", "breakfast"], ["这个", "zhège", "this one"]], "14": [["不要", "búyào", "don't"], ["都", "dōu", "all"], ["火车", "huǒchē", "train"], ["开", "kāi", "to open; to drive"], ["明年", "míngnián", "next year"], ["哪些", "nǎxiē", "which ones"], ["他们", "tāmen", "they, them (male/mixed)"], ["它们", "tāmen", "they, them (things)"], ["她们", "tāmen", "they, them (female)"], ["说话", "shuōhuà", "to speak"], ["听", "tīng", "to listen"], ["听见", "tīngjiàn", "to hear"], ["晚", "wǎn", "late"], ["小学", "xiǎoxué", "elementary school"], ["小学生", "xiǎoxuéshēng", "elementary school student"], ["写", "xiě", "to write"], ["有的", "yǒude", "some"], ["有些", "yǒuxiē", "some"], ["中午", "zhōngwǔ", "noon"], ["中学", "zhōngxué", "middle school"], ["中学生", "zhōngxuéshēng", "middle school student"], ["字", "zì", "(written) character"], ["上学", "shàngxué", "to go to school"]], "15": [["爱", "ài", "to love"], ["飞机", "fēijī", "airplane"], ["好玩儿", "hǎowánr", "fun"], ["机场", "jīchǎng", "airport"], ["家人", "jiārén", "family member"], ["接", "jiē", "to pick up (someone)"], ["哪个", "nǎge", "which one"], ["男朋友", "nánpéngyou", "boyfriend"], ["年", "nián", "year"], ["去年", "qùnián", "last year"], ["时间", "shíjiān", "time"], ["小时", "xiǎoshí", "hour"], ["早", "zǎo", "early"], ["住", "zhù", "to live, to reside"]]}; // HSK 1 vocabulary, ready now
+const LEVELS = {
+  1: { label:'HSK 1', data: DATA, lessons: 15 },
+  2: { label:'HSK 2', data: null, lessons: 15 },
+  3: { label:'HSK 3', data: null, lessons: 15 },
+  4: { label:'HSK 4', data: null, lessons: 20 },
+  5: { label:'HSK 5', data: null, lessons: 36 },
+  6: { label:'HSK 6', data: null, lessons: 40 },
+};
+let level = 1;
+const $ = s => document.querySelector(s);
+let ALL = [];
+function buildAll(){
+  ALL = [];
+  const d = LEVELS[level].data || {};
+  Object.keys(d).forEach(l => d[l].forEach(w => ALL.push({h:w[0],p:w[1],m:w[2],l:+l})));
+}
+buildAll();
+
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+const store = {
+  get(k, d){ try { return JSON.parse(localStorage.getItem(k) || 'null') ?? d; } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+};
+let trouble = new Set(store.get('hsk-trouble-'+level, []));
+let scores = store.get('hsk-scores', []);
+if (!Array.isArray(scores)) scores = [];
+let selected = new Set([1,2,3,4,5]);
+let mode = 'flash';
+let queue = [], idx = 0, results = [];
+
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const saveTrouble = () => store.set('hsk-trouble-'+level, [...trouble]);
+const el = (tag, cls, text) => { const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; };
+
+/* ---------- levels ---------- */
+function buildLevels(){
+  const box = $('#levels'); box.innerHTML='';
+  Object.keys(LEVELS).forEach(k => {
+    k = +k; const meta = LEVELS[k];
+    const b = el('button', 'lvl' + (meta.data ? '' : ' soon'));
+    b.innerHTML = meta.label + (meta.data ? '' : '<small>soon</small>');
+    b.setAttribute('aria-pressed', k === level);
+    b.onclick = () => {
+      if (!meta.data){ toast(meta.label + ' is coming soon'); return; }
+      if (level === k) return;
+      level = k; buildAll();
+      trouble = new Set(store.get('hsk-trouble-'+level, []));
+      selected = new Set(Array.from({length: Math.min(5, meta.lessons)}, (_,i) => i+1));
+      refresh();
+    };
+    box.appendChild(b);
+  });
+}
+buildLevels();
+
+/* ---------- setup ---------- */
+function buildChips(){
+  const box = $('#chips'); box.innerHTML='';
+  const n = LEVELS[level].lessons;
+  for (let i=1;i<=n;i++){
+    const b = el('button','chip',String(i)); b.setAttribute('aria-pressed', selected.has(i));
+    b.setAttribute('aria-label','Lesson '+i);
+    b.onclick = () => { selected.has(i) ? selected.delete(i) : selected.add(i); refresh(); };
+    box.appendChild(b);
+  }
+}
+document.querySelectorAll('[data-q]').forEach(b => b.onclick = () => {
+  const q = b.dataset.q; selected = new Set(); const n = LEVELS[level].lessons;
+  if (q==='all') for(let i=1;i<=n;i++) selected.add(i);
+  else { const [a,z]=q.split('-').map(Number); for(let i=a;i<=Math.min(z,n);i++) selected.add(i); }
+  refresh();
+});
+document.querySelectorAll('#modes button').forEach(b => b.onclick = () => { mode=b.dataset.mode; refresh(); });
+$('#tonly').onchange = refresh;
+$('#clear').onclick = () => { trouble.clear(); saveTrouble(); refresh(); };
+
+function pool(){
+  return $('#tonly').checked ? ALL.filter(w => trouble.has(w.h)) : ALL.filter(w => selected.has(w.l));
+}
+function refresh(){
+  buildChips();
+  document.querySelectorAll('.lvl').forEach((b,i) => b.setAttribute('aria-pressed', (i+1)===level));
+  document.querySelectorAll('#modes button').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode===mode));
+  $('#tcount').textContent = trouble.size;
+  $('#clear').hidden = trouble.size===0;
+  const n = pool().length;
+  $('#poolcount').textContent = n ? n+' words in this pool' : ($('#tonly').checked ? 'Your trouble list is empty.' : 'Pick at least one lesson.');
+  $('#start').disabled = n===0;
+}
+$('#start').onclick = () => {
+  let p = shuffle(pool()); const size = +$('#size').value; if (size) p = p.slice(0,size);
+  begin(p);
+};
+
+/* ---------- session ---------- */
+function begin(words){
+  queue = words; idx = 0; results = [];
+  $('#setup').hidden = true; $('#session').hidden = false; next();
+}
+$('#quit').onclick = () => { $('#session').hidden = true; $('#setup').hidden = false; refresh(); };
+
+function record(w, ok){
+  results.push({w, ok});
+  if (ok) trouble.delete(w.h); else trouble.add(w.h);
+  saveTrouble();
+}
+function progress(){
+  $('#prog').textContent = Math.min(idx+1, queue.length) + ' / ' + queue.length;
+  $('#barfill').style.width = (idx / queue.length * 100) + '%';
+}
+function next(){
+  if (idx >= queue.length) return result();
+  progress();
+  const w = queue[idx];
+  mode==='quiz' ? renderQuiz(w) : renderCard(w);
+}
+
+function renderCard(w){
+  const st = $('#stage'); st.innerHTML='';
+  const meaningFirst = mode==='write';
+  const scene = el('div','scene');
+  const card = el('button','card'); card.setAttribute('aria-label','Flip card');
+  const f = el('div','face grid'), b = el('div','face back');
+  const hz = el('p','big hanzi'+(w.h.length>2?' long':''), w.h);
+  const py = el('p','py', w.p), mn = el('p','mean', w.m);
+  const tagF = el('span','tag','Lesson '+w.l), tagB = el('span','tag','Lesson '+w.l);
+  if (!meaningFirst){
+    f.append(tagF, hz);
+    b.append(tagB, py, mn);
+  } else {
+    const py2 = py.cloneNode(true), mn2 = mn.cloneNode(true);
+    f.classList.remove('grid'); f.append(tagF, py2, mn2);
+    b.classList.add('grid'); const hz2 = hz.cloneNode(true); b.append(tagB, hz2);
+  }
+  card.append(f,b); scene.appendChild(card); st.appendChild(scene);
+  st.appendChild(el('p','hint', meaningFirst ? 'Write it on paper, then flip to check (Space)' : 'Say it and write it, then flip (Space)'));
+  const act = el('div','actions');
+  const no = el('button','no','Missed'), yes = el('button','yes','Got it');
+  no.disabled = yes.disabled = true;
+  act.append(no,yes); st.appendChild(act);
+  const flip = () => { card.classList.toggle('flipped'); const on = card.classList.contains('flipped'); no.disabled = yes.disabled = !on; };
+  card.onclick = flip;
+  no.onclick = () => { record(w,false); idx++; next(); };
+  yes.onclick = () => { record(w,true); idx++; next(); };
+  current = {flip, no, yes};
+}
+
+function distractors(w, key){
+  let pl = ALL.filter(x => x.l <= Math.max(...selected, w.l) && x.h!==w.h && x[key]!==w[key]);
+  if (pl.length < 8) pl = ALL.filter(x => x.h!==w.h && x[key]!==w[key]);
+  const same = shuffle(pl.filter(x => x.h.length===w.h.length));
+  const rest = shuffle(pl.filter(x => x.h.length!==w.h.length));
+  const out = []; const seen = new Set([w[key]]);
+  for (const x of [...same, ...rest]){ if(!seen.has(x[key])){ out.push(x); seen.add(x[key]); } if(out.length===3) break; }
+  return out;
+}
+function renderQuiz(w){
+  const st = $('#stage'); st.innerHTML='';
+  const h2m = Math.random() < 0.5;
+  const key = h2m ? 'm' : 'h';
+  const q = el('div','q');
+  if (h2m){ q.append(el('p','big hanzi'+(w.h.length>2?' long':''), w.h), el('p','hint','What does it mean?')); }
+  else { q.append(el('p','py',w.p), el('p','mean',w.m), el('p','hint','Pick the hanzi')); }
+  st.appendChild(q);
+  const opts = shuffle([w, ...distractors(w,key)]);
+  const ans = el('div','ans'); const fb = el('p','fb'); fb.setAttribute('aria-live','polite');
+  let done = false; const btns = [];
+  opts.forEach((o,i) => {
+    const b = el('button'); b.append(el('span','k',String(i+1)));
+    b.append(h2m ? el('span',null,o.m) : el('span','hz hanzi',o.h));
+    b.onclick = () => choose(o, b);
+    ans.appendChild(b); btns.push(b);
+  });
+  st.append(ans, fb);
+  const nextBtn = el('button','primary','Next'); nextBtn.hidden = true; nextBtn.style.marginTop='8px';
+  st.appendChild(nextBtn);
+  function choose(o, b){
+    if (done) return; done = true;
+    const ok = o.h===w.h;
+    btns.forEach((bb,i) => { bb.disabled=true; if (opts[i].h===w.h) bb.classList.add('right'); });
+    if (!ok) b.classList.add('wrong');
+    fb.textContent = ok ? 'Correct' : (w.h+'  '+w.p+'  '+w.m);
+    record(w, ok);
+    nextBtn.hidden = false; nextBtn.focus();
+    current = {next: () => { idx++; next(); }};
+  }
+  nextBtn.onclick = () => { idx++; next(); };
+  current = {pick: i => btns[i] && btns[i].click()};
+}
+let current = {};
+
+function result(){
+  $('#barfill').style.width='100%';
+  $('#prog').textContent = 'Done';
+  const st = $('#stage'); st.innerHTML='';
+  const right = results.filter(r=>r.ok).length, missed = results.filter(r=>!r.ok).map(r=>r.w);
+  st.append(el('p','lbl','Round complete'), el('p','score', right+' / '+results.length));
+  let entry = null;
+  if (results.length >= 5){
+    entry = {
+      date: Date.now(), level, mode,
+      lessons: $('#tonly').checked ? 'Trouble list' : (selected.size===LEVELS[level].lessons ? 'All' : [...selected].sort((a,b)=>a-b).join(',')),
+      total: results.length, correct: right, pct: Math.round(right/results.length*100)
+    };
+    scores.push(entry); scores = scores.slice(-200); store.set('hsk-scores', scores);
+  }
+  if (entry && supaConfigured()){
+    const wrap = el('div','namebox');
+    const input = document.createElement('input');
+    input.placeholder = 'Your name'; input.maxLength = NAME_MAX; input.value = nameStore.get();
+    input.setAttribute('aria-label', 'Your name for the global leaderboard');
+    const submit = el('button','primary','Save to global'); submit.style.flex='0 0 auto'; submit.style.width='auto'; submit.style.padding='0 16px';
+    wrap.append(input, submit);
+    st.appendChild(wrap);
+    st.appendChild(el('p','namehint','Shown publicly on the global leaderboard for this device\'s scores.'));
+    submit.onclick = async () => {
+      const nm = cleanName(input.value); if (!nm){ input.value = ''; input.focus(); return; }
+      input.value = nm; nameStore.set(nm);
+      submit.disabled = input.disabled = true; submit.textContent = 'Saving…';
+      try {
+        await submitScore({ ...entry, name: nm });
+        submit.textContent = 'Saved ✓';
+      } catch(e){
+        submit.textContent = 'Save to global';
+        submit.disabled = input.disabled = false;
+        toast('Could not reach the leaderboard — try again');
+      }
+    };
+  }
+  if (missed.length){
+    st.append(el('p','lbl','Missed — added to your trouble list'));
+    const ul = el('ul','miss');
+    missed.forEach(w => { const li = el('li'); li.append(el('span','hanzi',w.h), el('span',null,w.p), el('span','m',w.m)); ul.appendChild(li); });
+    st.appendChild(ul);
+  } else st.append(el('p','hint','Nothing missed. Try a bigger round or a later lesson.'));
+  const box = el('div','stack');
+  if (missed.length){ const b=el('button','primary','Drill missed words'); b.onclick=()=>begin(shuffle(missed)); box.appendChild(b); }
+  const back = el('button','ghost','Back to setup'); back.onclick = () => $('#quit').click();
+  box.appendChild(back); st.appendChild(box);
+  current = {};
+}
+
+/* ---------- leaderboard ---------- */
+const MODE_LABEL = {flash:'Flashcards', write:'Write', quiz:'Quiz'};
+let lbTab = 'global';
+
+// fetch with a timeout so a hung connection surfaces as an error instead of "Loading…" forever
+async function supaFetch(url, opts){
+  const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 10000);
+  try { return await fetch(url, { ...opts, signal: ctl.signal }); }
+  finally { clearTimeout(t); }
+}
+
+async function submitScore(entry){
+  const res = await supaFetch(supaBase() + '/rest/v1/scores', {
+    method: 'POST',
+    headers: { ...supaHeaders(), 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify({
+      name: cleanName(entry.name), level: entry.level, mode: entry.mode, lessons: String(entry.lessons),
+      total: entry.total, correct: entry.correct, pct: entry.pct
+    })
+  });
+  if (!res.ok) throw new Error('submit failed: ' + res.status);
+}
+
+async function fetchGlobal(lvl){
+  const cols = 'name,level,mode,lessons,total,correct,pct,created_at';
+  const q = `${supaBase()}/rest/v1/scores?level=eq.${encodeURIComponent(lvl)}&select=${cols}&order=pct.desc,total.desc,created_at.desc&limit=20`;
+  const res = await supaFetch(q, { headers: supaHeaders() });
+  if (!res.ok) throw new Error('fetch failed: ' + res.status);
+  const rows = await res.json();
+  if (!Array.isArray(rows)) throw new Error('unexpected response');
+  return rows;
+}
+
+// Every value below reaches the DOM via textContent only (see el()), so names/labels from the
+// server are always shown as literal text. Fallbacks keep a malformed row from rendering "undefined"/"NaN".
+function rowsToList(rows, mineNames){
+  const ul = el('ul','lb-list');
+  rows.forEach((s,i) => {
+    const li = el('li');
+    if (mineNames && s.name && mineNames.has(s.name)) li.classList.add('you');
+    li.append(el('span','rank', i===0 ? '🏆' : String(i+1)));
+    const meta = el('div','meta');
+    const lessons = String(s.lessons == null ? '' : s.lessons);
+    const lessonsLabel = lessons==='All' ? 'All lessons' : lessons==='Trouble list' ? 'Trouble list' : 'Lessons '+lessons;
+    const who = s.name ? (String(s.name)+' · ') : '';
+    meta.append(el('b', null, who+(MODE_LABEL[s.mode] || 'Round')+' · '+lessonsLabel));
+    const when = new Date(s.created_at || s.date);
+    const whenTxt = isNaN(when) ? '' : when.toLocaleDateString()+' · ';
+    meta.append(el('span', null, whenTxt+(+s.correct||0)+'/'+(+s.total||0)+' correct'));
+    li.append(meta, el('span','pct', (+s.pct||0)+'%'));
+    ul.appendChild(li);
+  });
+  return ul;
+}
+
+function renderDeviceBoard(){
+  const body = $('#lbBody'); body.innerHTML='';
+  const rows = scores
+    .filter(s => s.level === level)
+    .sort((a,b) => b.pct - a.pct || b.total - a.total || b.date - a.date)
+    .slice(0, 20);
+  if (!rows.length){
+    body.appendChild(el('p','empty','No rounds finished yet on this device for '+LEVELS[level].label+'.'));
+    return;
+  }
+  body.appendChild(rowsToList(rows));
+}
+
+async function renderGlobalBoard(){
+  const body = $('#lbBody'); body.innerHTML='';
+  if (!supaConfigured()){
+    body.appendChild(el('p','lb-status err',
+      'Global leaderboard isn\'t set up yet — it needs a free Supabase project. See the README, then paste the URL and key into index.html.'));
+    return;
+  }
+  body.appendChild(el('p','lb-status','Loading…'));
+  const ticket = ++lbTicket;
+  try {
+    const rows = await fetchGlobal(level);
+    if (ticket !== lbTicket) return;   // user switched tab/left screen while this was in flight
+    body.innerHTML = '';
+    if (!rows.length){
+      body.appendChild(el('p','empty','No scores yet for '+LEVELS[level].label+'. Be the first!'));
+      return;
+    }
+    const mine = new Set([nameStore.get()].filter(Boolean));
+    body.appendChild(rowsToList(rows, mine));
+  } catch(e){
+    if (ticket !== lbTicket) return;
+    body.innerHTML = '';
+    body.appendChild(el('p','lb-status err','Could not load the global leaderboard. Check your connection and try again.'));
+    const retry = el('button','ghost','Retry'); retry.style.display = 'block'; retry.style.margin = '0 auto';
+    retry.onclick = renderGlobalBoard;
+    body.appendChild(retry);
+  }
+}
+
+let lbTicket = 0;
+function renderLeaderboard(){
+  lbTicket++;   // invalidates any in-flight global fetch
+  lbTab === 'global' ? renderGlobalBoard() : renderDeviceBoard();
+}
+document.querySelectorAll('#lbTabs button').forEach(b => b.onclick = () => {
+  lbTab = b.dataset.tab;
+  document.querySelectorAll('#lbTabs button').forEach(x => x.setAttribute('aria-pressed', x===b));
+  renderLeaderboard();
+});
+$('#showLb').onclick = () => { $('#setup').hidden = true; renderLeaderboard(); $('#leaderboard').hidden = false; };
+$('#lbBack').onclick = () => { lbTicket++; $('#leaderboard').hidden = true; $('#setup').hidden = false; refresh(); };
+
+document.addEventListener('keydown', e => {
+  if ($('#session').hidden) return;
+  if (e.target.tagName==='SELECT') return;
+  if (current.flip){
+    if (e.key===' ' || e.key==='Enter'){ e.preventDefault(); current.flip(); }
+    else if (e.key==='ArrowLeft' && !current.no.disabled) current.no.click();
+    else if (e.key==='ArrowRight' && !current.yes.disabled) current.yes.click();
+  } else if (current.pick){
+    if (/^[1-4]$/.test(e.key)) current.pick(+e.key-1);
+  } else if (current.next && (e.key==='Enter' || e.key===' ')){ e.preventDefault(); current.next(); }
+});
+
+refresh();
+</script>
+</body>
+</html>

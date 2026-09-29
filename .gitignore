@@ -1,0 +1,4 @@
+baseline/
+screenshots/
+.playwright-mcp/
+.DS_Store
