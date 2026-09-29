@@ -35,7 +35,7 @@ legend,.lbl{font-weight:600;font-size:.95rem;margin-bottom:8px;padding:0}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .seg small{display:block;color:inherit;opacity:.7;font-size:.75rem}
 .opts{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-select{font:inherit;padding:8px 10px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;min-height:44px}
+select{font:inherit;padding:8px 38px 8px 14px;border:1px solid var(--line);color:var(--ink);border-radius:8px;min-height:44px;-webkit-appearance:none;appearance:none;background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%239a9a97' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 14px center}
 label.chk{display:flex;gap:8px;align-items:center;min-height:44px}
 input[type=checkbox]{width:20px;height:20px;accent-color:var(--seal)}
 .primary{width:100%;min-height:52px;border:0;border-radius:10px;background:var(--seal);color:var(--seal-ink);font-weight:650;font-size:1.05rem}
@@ -90,8 +90,9 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--seal)}
 .levels{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;margin-bottom:18px;-webkit-overflow-scrolling:touch}
 .lvl{flex:0 0 auto;min-height:44px;padding:0 14px;border:1px solid var(--line);background:var(--card);border-radius:20px;font-weight:600;white-space:nowrap}
 .lvl[aria-pressed="true"]{background:var(--seal);color:var(--seal-ink);border-color:var(--seal)}
-.lvl.soon{color:var(--muted);opacity:.6}
-.lvl.soon small{display:block;font-weight:400;font-size:.68rem;margin-top:1px}
+.lvl{position:relative}
+.lvl.soon{color:var(--muted);opacity:.6;cursor:default}
+.lvl.soon:hover,.lvl.soon:focus-visible{opacity:1}
 /* footer */
 .credit{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;text-align:center}
 .credit a{color:inherit;font-weight:600}
@@ -125,6 +126,8 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--seal)}
   h1{font-size:1.6rem}
   .sub{font-size:1rem;margin-bottom:26px}
   .levels{overflow-x:visible;flex-wrap:wrap;margin-bottom:26px}
+  .lvl.soon::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);font-size:.78rem;font-weight:500;padding:5px 10px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:10}
+  .lvl.soon:hover::after,.lvl.soon:focus-visible::after{opacity:1}
   /* lesson chips: even grid instead of ragged wrapping */
   #chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:8px}
   #chips+.row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -158,7 +161,11 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--seal)}
 
 /* ---------- desktop (>=1100px) ---------- */
 @media (min-width:1100px){
-  main{max-width:1120px;padding:40px 48px 72px}
+  main{max-width:1240px;padding:40px 48px 72px;display:grid;grid-template-columns:128px minmax(0,1fr);column-gap:48px;align-content:start}
+  main>*{grid-column:2}
+  .levels{grid-column:1;grid-row:1 / span 3;align-self:start;position:sticky;top:24px;flex-direction:column;flex-wrap:nowrap;gap:6px;margin:6px 0 0}
+  .lvl{width:100%;text-align:left;border-radius:10px;padding:0 16px}
+  .lvl.soon::after{top:50%;left:calc(100% + 10px);transform:translateY(-50%)}
   h1{font-size:1.9rem}
   /* setup becomes two columns: lessons on the left, mode/round/start on the right */
   #setup{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);column-gap:56px;align-content:start;align-items:start}
@@ -308,7 +315,8 @@ function buildLevels(){
   Object.keys(LEVELS).forEach(k => {
     k = +k; const meta = LEVELS[k];
     const b = el('button', 'lvl' + (meta.data ? '' : ' soon'));
-    b.innerHTML = meta.label + (meta.data ? '' : '<small>soon</small>');
+    b.textContent = meta.label;
+    if (!meta.data){ b.dataset.tip = 'Not available yet'; b.setAttribute('aria-label', meta.label + ', not available yet'); }
     b.setAttribute('aria-pressed', k === level);
     b.onclick = () => {
       if (!meta.data){ toast(meta.label + ' is coming soon'); return; }
