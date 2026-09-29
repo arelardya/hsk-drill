@@ -156,7 +156,7 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--seal)}
   .miss{grid-template-columns:1fr 1fr}
   .stack{grid-template-columns:1fr 1fr}
   .lb-list li{padding:12px 16px}
-  .credit{margin-top:48px}
+  .credit{position:fixed;right:16px;bottom:16px;margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card);font-size:.8rem;z-index:5}
 }
 
 /* ---------- desktop (>=1100px) ---------- */
@@ -514,7 +514,7 @@ function result(){
 
 /* ---------- leaderboard ---------- */
 const MODE_LABEL = {flash:'Flashcards', write:'Write', quiz:'Quiz'};
-let lbTab = 'global';
+let lbTab = lbConfigured() ? 'global' : 'device';
 
 // fetch with a timeout so a hung connection surfaces as an error instead of "Loading…" forever
 async function apiFetch(url, opts){
@@ -618,6 +618,7 @@ document.querySelectorAll('#lbTabs button').forEach(b => b.onclick = () => {
   document.querySelectorAll('#lbTabs button').forEach(x => x.setAttribute('aria-pressed', x===b));
   renderLeaderboard();
 });
+if (!lbConfigured()){ document.querySelector('#lbTabs [data-tab=global]').hidden = true; document.querySelectorAll('#lbTabs button').forEach(x => x.setAttribute('aria-pressed', x.dataset.tab===lbTab)); }
 $('#showLb').onclick = () => { $('#setup').hidden = true; renderLeaderboard(); $('#leaderboard').hidden = false; };
 $('#lbBack').onclick = () => { lbTicket++; $('#leaderboard').hidden = true; $('#setup').hidden = false; refresh(); };
 
